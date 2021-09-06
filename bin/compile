@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+indent() {
+  sed -u 's/^/       /'
+}
+
+echo "-----> Installing mp4decrypt"
+BUILD_DIR=$1
+CACHE_DIR=$2
+VENDOR_DIR="vendor"
+FILE="mp4decrypt"
+DOWNLOAD_URL="https://raw.githubusercontent.com/riganf/heroku-buildpack-mp4decrypt/master/mp4decrypt"
+
+mkdir -p "$CACHE_DIR"
+wget $DOWNLOAD_URL -q -O "$CACHE_DIR/$FILE"
+
+cd "$BUILD_DIR"
+mkdir -p "$VENDOR_DIR"
+cd "$VENDOR_DIR"
+mkdir -p mp4decrypt
+cd mp4decrypt
+cp "$CACHE_DIR/$FILE" .
+chmod 777 mp4decrypt
+
+echo "exporting PATH" | indent
+PROFILE_PATH="$BUILD_DIR/.profile.d/mp4decrypt.sh"
+mkdir -p "$(dirname "$PROFILE_PATH")"
+echo 'export PATH="$PATH:${HOME}/vendor/mp4decrypt"' >> $PROFILE_PATH
